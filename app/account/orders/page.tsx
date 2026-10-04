@@ -1,1 +1,14 @@
-export default function Orders(){return <main className="container py-20"><h1 className="serif text-5xl">My Orders</h1><div className="card p-8 mt-10 text-muted-text">Your orders will appear here after Supabase authentication and order creation are connected.</div></main>}
+export default function Orders(){
+  return (
+    <main className="container py-20">
+      <div className="mb-8">
+        <p className="eyebrow">My orders</p>
+        <h1 className="serif mt-3 text-5xl text-text">Order history</h1>
+      </div>
+
+      <div className="card p-8">
+        <p className="text-muted-text">Your orders will appear here once your account is connected to Supabase order data.</p>
+      </div>
+    </main>
+  );
+}
