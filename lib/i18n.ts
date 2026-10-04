@@ -43,9 +43,23 @@ export function localizedField(
   return typeof fallback === 'string' && fallback.trim() ? fallback : undefined;
 }
 
-export function localizedCategoryName(name: string | null | undefined, locale: Locale): string {
+export function localizedCategoryName(
+  name: string | null | undefined,
+  locale: Locale,
+  category?: Record<string, unknown> | null,
+): string {
   if (!name) return '';
   if (locale === 'en') return name;
+  const translations = category?.translations ?? category?.categoryTranslations ?? category?.category_translations;
+  if (translations && typeof translations === 'object' && !Array.isArray(translations)) {
+    const localized = (translations as Record<string, unknown>)[locale];
+    if (localized && typeof localized === 'object' && !Array.isArray(localized)) {
+      const localizedName = (localized as Record<string, unknown>).name;
+      if (typeof localizedName === 'string' && localizedName.trim()) return localizedName;
+    }
+  }
+  const localeName = category?.name_ar;
+  if (typeof localeName === 'string' && localeName.trim()) return localeName;
   const key = name.trim().toLowerCase().replace(/\s+/g, '');
   const translated = translate(locale, `categories.${key}`);
   return translated.startsWith('categories.') ? name : translated;

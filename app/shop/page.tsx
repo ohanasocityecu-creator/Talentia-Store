@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import {LocalizedLink as Link} from '@/components/LocalizedLink';
 import {ProductGrid} from '@/components/ProductGrid';
 import {supabase} from '@/lib/supabase';
 import {getLocale} from '@/lib/locale-server';
@@ -36,7 +36,7 @@ export default async function Shop(){
           <Link href="/shop" className="bg-soft-pink border border-rose px-4 py-2 text-sm font-semibold text-burgundy">{t('shop.all')}</Link>
           {categories.map((category) => (
             <Link key={category.slug} href={`/category/${category.slug}`} className="border border-border bg-white px-4 py-2 text-sm font-medium text-muted-text hover:border-rose hover:text-burgundy">
-              {localizedCategoryName(category.name, locale)}
+              {localizedCategoryName(category.name, locale, category)}
             </Link>
           ))}
         </div>

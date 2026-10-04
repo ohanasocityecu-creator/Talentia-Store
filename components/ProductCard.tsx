@@ -1,5 +1,5 @@
 'use client';
-import Link from 'next/link';
+import {LocalizedLink as Link} from '@/components/LocalizedLink';
 import {Heart} from 'lucide-react';
 import {Media} from './Media';
 import {useLanguage} from '@/components/LanguageProvider';
@@ -12,7 +12,7 @@ export function ProductCard({p}:{p:any}){
   const compareAt = Number(p.compare_at_price ?? 0);
   const price = Number(p.price ?? 0);
   const name = localizedField(p, 'name', locale) ?? '';
-  const categoryName = localizedCategoryName(p.categories?.name, locale);
+  const categoryName = localizedCategoryName(p.categories?.name, locale, p.categories);
   const hasDiscount = compareAt > price;
   const discountPct = hasDiscount ? Math.round(((compareAt - price) / compareAt) * 100) : 0;
 

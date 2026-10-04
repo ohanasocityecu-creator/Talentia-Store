@@ -1,12 +1,13 @@
 'use client';
 import {useEffect, useState} from 'react';
-import Link from 'next/link';
+import {LocalizedLink as Link} from '@/components/LocalizedLink';
 import {useLanguage} from '@/components/LanguageProvider';
+import {formatPrice, localizedField} from '@/lib/i18n';
 
 export default function Checkout(){
   const [items, setItems] = useState<any[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const {t} = useLanguage();
+  const {locale, t} = useLanguage();
 
   useEffect(() => {
     try {
@@ -95,8 +96,8 @@ export default function Checkout(){
           <div className="mt-6 grid gap-4">
             {items.map((item) => (
               <div key={`${item.id}-${item.quantity}`} className="flex items-center justify-between gap-3 text-sm text-muted-text">
-                <span>{item.name} × {item.quantity}</span>
-                <span className="font-medium text-text">{(Number(item.price) * Number(item.quantity)).toLocaleString()} EGP</span>
+                <span>{localizedField(item, 'name', locale) ?? t('product.collection')} × {item.quantity}</span>
+                <span className="font-medium text-text">{formatPrice(Number(item.price) * Number(item.quantity), locale)}</span>
               </div>
             ))}
           </div>
@@ -104,7 +105,7 @@ export default function Checkout(){
           <div className="mt-6 border-t border-border pt-5">
             <div className="flex items-center justify-between text-sm text-muted-text">
               <span>{t('cart.subtotal')}</span>
-              <span className="text-lg font-semibold text-text">{subtotal.toLocaleString()} EGP</span>
+              <span className="text-lg font-semibold text-text">{formatPrice(subtotal, locale)}</span>
             </div>
           </div>
         </aside>

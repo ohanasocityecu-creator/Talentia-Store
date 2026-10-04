@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import {LocalizedLink as Link} from '@/components/LocalizedLink';
 import {getLocale} from '@/lib/locale-server';
 import {translate} from '@/lib/i18n';
 

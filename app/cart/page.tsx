@@ -1,6 +1,6 @@
 'use client';
 import {useEffect, useState} from 'react';
-import Link from 'next/link';
+import {LocalizedLink as Link} from '@/components/LocalizedLink';
 import {Media} from '@/components/Media';
 import {useLanguage} from '@/components/LanguageProvider';
 import {formatPrice, localizedField} from '@/lib/i18n';
@@ -63,7 +63,7 @@ export default function Cart(){
             <h2 className="serif text-3xl text-text">{t('cart.summary')}</h2>
             <div className="mt-7 flex items-center justify-between text-sm text-muted-text">
               <span>{t('cart.subtotal')}</span>
-              <b className="text-lg text-text">{total.toLocaleString()} EGP</b>
+              <b className="text-lg text-text">{formatPrice(total, locale)}</b>
             </div>
             <p className="mt-4 text-xs leading-6 text-muted-text">{t('cart.shippingCalculated')}</p>
             <Link href="/checkout" className="lux-btn mt-7 w-full">{t('cart.proceed')}</Link>

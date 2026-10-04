@@ -1,4 +1,5 @@
 import {ProductGrid} from '@/components/ProductGrid';
+import {LocalizedLink as Link} from '@/components/LocalizedLink';
 import {supabase} from '@/lib/supabase';
 import {notFound} from 'next/navigation';
 import {getLocale} from '@/lib/locale-server';
@@ -18,7 +19,7 @@ export default async function Category({params}:{params:Promise<{slug:string}>})
 
   if (!categoryResult.data) notFound();
 
-  categoryName = localizedCategoryName(categoryResult.data.name, locale);
+  categoryName = localizedCategoryName(categoryResult.data.name, locale, categoryResult.data);
   products = productResult.data ?? [];
 
   return (

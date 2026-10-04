@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import {LocalizedLink as Link} from '@/components/LocalizedLink';
 import { useActionState } from 'react';
 import { signInAction } from './actions';
 import {useLanguage} from '@/components/LanguageProvider';

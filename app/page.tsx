@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import {LocalizedLink as Link} from '@/components/LocalizedLink';
 import {ArrowRight, HeartHandshake, Sparkles, ShieldCheck, Truck} from 'lucide-react';
 import {ProductGrid} from '@/components/ProductGrid';
 import {supabase} from '@/lib/supabase';
@@ -139,7 +139,7 @@ export default async function Home({searchParams}:{searchParams:Promise<{access?
                 <Link key={category.slug} href={`/category/${category.slug}`} className="card group overflow-hidden">
                   <div className="flex aspect-[4/5] flex-col justify-end bg-gradient-to-br from-[#fff9f7] via-[#fff6f3] to-[#f4dfe1] p-5">
                     <div className="flex items-center justify-between">
-                      <span className="serif text-2xl text-text">{localizedCategoryName(category.name, locale)}</span>
+                      <span className="serif text-2xl text-text">{localizedCategoryName(category.name, locale, category)}</span>
                       <ArrowRight size={18} className="rtl-flip text-burgundy transition group-hover:translate-x-1" />
                     </div>
                   </div>

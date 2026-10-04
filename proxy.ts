@@ -7,6 +7,12 @@ export async function proxy(request: NextRequest) {
   if (pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname.startsWith('/.well-known')) {
     return NextResponse.next({ request });
   }
+  if (pathname === '/robots.txt' || pathname === '/sitemap.xml') {
+    return NextResponse.next({ request });
+  }
+  if (request.headers.get('x-talentia-locale-rewrite') === '1') {
+    return NextResponse.next({ request });
+  }
 
   const localeMatch = pathname.match(/^\/(en|ar)(?=\/|$)/);
   if (!localeMatch) {
@@ -14,7 +20,7 @@ export async function proxy(request: NextRequest) {
     const locale = isLocale(storedLocale) ? storedLocale : 'en';
     const destination = request.nextUrl.clone();
     destination.pathname = `/${locale}${pathname === '/' ? '' : pathname}`;
-    return NextResponse.redirect(destination, 308);
+    return NextResponse.redirect(destination, 307);
   }
 
   const locale = localeMatch[1] as 'en' | 'ar';
@@ -22,6 +28,7 @@ export async function proxy(request: NextRequest) {
   request.cookies.set(localeCookieName, locale);
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-talentia-pathname', localizedPath);
+  requestHeaders.set('x-talentia-locale-rewrite', '1');
   const destination = request.nextUrl.clone();
   destination.pathname = localizedPath;
   const response = NextResponse.rewrite(destination, { request: { headers: requestHeaders } });
@@ -29,6 +36,8 @@ export async function proxy(request: NextRequest) {
     path: '/',
     maxAge: 60 * 60 * 24 * 365,
     sameSite: 'lax',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
   });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

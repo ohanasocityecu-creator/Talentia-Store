@@ -2,7 +2,7 @@
 
 import {useState} from 'react';
 import {ShoppingBag, Heart} from 'lucide-react';
-import Link from 'next/link';
+import {LocalizedLink as Link} from '@/components/LocalizedLink';
 import {useLanguage} from '@/components/LanguageProvider';
 
 export function AddToCart({product, disabled = false}:{product:any; disabled?:boolean}){
