@@ -1,0 +1,1 @@
+export default function Forgot(){return <main className="container max-w-md py-24"><h1 className="serif text-5xl">Reset password</h1><form className="grid gap-4 mt-10"><input className="input" type="email" placeholder="Email"/><button className="lux-btn">SEND RESET LINK</button></form></main>}

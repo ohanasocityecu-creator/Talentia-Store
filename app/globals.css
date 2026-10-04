@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+@import 'tailwindcss';
+@theme {
+	--color-cream: #fff9f7;
+	--color-soft-pink: #f8e8e8;
+	--color-blush: #f3d6d6;
+	--color-dusty-rose: #d9aeb0;
+	--color-rose: #c98f94;
+	--color-deep-rose: #a96870;
+	--color-burgundy: #7a424a;
+	--color-text: #352629;
+	--color-muted-text: #806f72;
+	--color-white: #fff;
+	--color-border: #eedfe0;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;color-scheme:light}
+body{margin:0;background:var(--color-cream);color:var(--color-text);font-family:'DM Sans',sans-serif}
+*,*::before,*::after{border-color:var(--color-border)}
+button,input,select,textarea{font:inherit}
+input[type=checkbox],input[type=radio]{accent-color:var(--color-rose)}
+.serif{font-family:'Playfair Display',serif}
+.container{width:min(1240px,calc(100% - 40px));margin:auto}
+.lux-btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 22px;background:var(--color-burgundy);color:var(--color-white);border:1px solid var(--color-burgundy);transition:background-color .25s,border-color .25s,color .25s}
+.lux-btn:hover:not(:disabled){background:var(--color-deep-rose);border-color:var(--color-deep-rose)}
+.lux-btn:disabled{opacity:.55;cursor:not-allowed}
+.ghost-btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 22px;background:var(--color-soft-pink);color:var(--color-burgundy);border:1px solid var(--color-border);transition:background-color .25s,border-color .25s,color .25s}
+.ghost-btn:hover{background:var(--color-blush);border-color:var(--color-rose);color:var(--color-burgundy)}
+.rose-line{height:1px;background:linear-gradient(90deg,transparent,var(--color-dusty-rose),transparent)}
+.card{background:var(--color-white);border:1px solid var(--color-border);color:var(--color-text);box-shadow:0 8px 30px rgb(122 66 74 / 4%)}
+.input{width:100%;border:1px solid var(--color-border);border-radius:4px;background:var(--color-white);color:var(--color-text);padding:13px 14px;outline:none;transition:border-color .2s,background-color .2s}
+.input::placeholder{color:var(--color-muted-text);opacity:1}
+.input:focus{border-color:var(--color-rose);outline:2px solid var(--color-deep-rose);outline-offset:1px}
+.input:disabled{opacity:.55;cursor:not-allowed}
+.lux-btn:focus-visible,.ghost-btn:focus-visible{outline:2px solid var(--color-deep-rose);outline-offset:2px}
+a{transition:color .2s,border-color .2s}

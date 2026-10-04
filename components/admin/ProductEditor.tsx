@@ -1,0 +1,31 @@
+import Link from 'next/link';
+import { ActionForm } from './ActionForm';
+import { saveProductAction, saveVariantAction, deleteVariantAction } from '@/app/admin/actions';
+
+export function ProductEditor({ product, categories }: { product?: any; categories: any[] }) {
+  const images = [...(product?.product_images ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+  const variants = product?.product_variants ?? [];
+  return <>
+    <div className="flex items-end justify-between gap-4"><div><Link className="text-sm text-muted-text" href="/admin/products">Products</Link><h1 className="serif text-5xl mt-2">{product ? 'Edit product' : 'New product'}</h1></div>{product&&<span className={product.is_active?'text-green-800':'text-muted-text'}>{product.is_active?'Active':'Inactive'}</span>}</div>
+    <ActionForm action={saveProductAction} submitLabel={product?'Save product':'Create product'} className="card mt-8 grid gap-6 p-6 md:p-8">
+      {product&&<input type="hidden" name="id" value={product.id}/>}
+      <div className="grid md:grid-cols-2 gap-4">
+        <label className="grid gap-1 text-sm text-muted-text">Product name<input className="input" name="name" defaultValue={product?.name??''} required maxLength={160}/></label>
+        <label className="grid gap-1 text-sm text-muted-text">Slug<input className="input" name="slug" defaultValue={product?.slug??''} required pattern="[a-z0-9]+(?:-[a-z0-9]+)*"/></label>
+        <label className="grid gap-1 text-sm text-muted-text">SKU<input className="input" name="sku" defaultValue={product?.sku??''} required maxLength={80}/></label>
+        <label className="grid gap-1 text-sm text-muted-text">Category<select className="input" name="category_id" defaultValue={product?.category_id??''}><option value="">Uncategorized</option>{categories.map(category=><option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
+        <label className="grid gap-1 text-sm text-muted-text">Price (EGP)<input className="input" type="number" name="price" min="0" step="0.01" defaultValue={product?.price??''} required/></label>
+        <label className="grid gap-1 text-sm text-muted-text">Compare-at price<input className="input" type="number" name="compare_at_price" min="0" step="0.01" defaultValue={product?.compare_at_price??''}/></label>
+        <label className="grid gap-1 text-sm text-muted-text">Cost price<input className="input" type="number" name="cost_price" min="0" step="0.01" defaultValue={product?.cost_price??''}/></label>
+        <label className="grid gap-1 text-sm text-muted-text">Stock quantity<input className="input" type="number" name="stock_quantity" min="0" step="1" defaultValue={product?.stock_quantity??0} required/></label>
+        <label className="grid gap-1 text-sm text-muted-text">Low stock threshold<input className="input" type="number" name="low_stock_threshold" min="0" step="1" defaultValue={product?.low_stock_threshold??3} required/></label>
+      </div>
+      <label className="grid gap-1 text-sm text-muted-text">Short description<textarea className="input min-h-20" name="short_description" maxLength={500} defaultValue={product?.short_description??''}/></label>
+      <label className="grid gap-1 text-sm text-muted-text">Description<textarea className="input min-h-32" name="description" maxLength={10000} defaultValue={product?.description??''}/></label>
+      <label className="grid gap-1 text-sm text-muted-text">Image URLs, one per line<textarea className="input min-h-24" name="image_urls" defaultValue={images.map(image=>image.image_url).join('\n')}/></label>
+      <label className="grid gap-1 text-sm text-muted-text">Upload images to Supabase Storage<input className="input" type="file" name="images" accept="image/*" multiple/></label>
+      <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm">{[['is_active','Active'],['is_featured','Featured'],['is_new','New arrival'],['is_best_seller','Best seller']].map(([name,label])=><label key={name} className="flex items-center gap-2 text-text"><input type="checkbox" name={name} defaultChecked={product?product[name]:name==='is_active'}/> {label}</label>)}</div>
+    </ActionForm>
+    {product&&<section className="mt-10"><h2 className="serif text-3xl">Variants</h2><div className="grid gap-4 mt-5">{variants.map((variant:any)=><div className="card p-5" key={variant.id}><ActionForm action={saveVariantAction} submitLabel="Save variant" className="grid md:grid-cols-3 gap-3"> <input type="hidden" name="id" value={variant.id}/><input type="hidden" name="product_id" value={product.id}/><input className="input" name="name" aria-label="Variant name" defaultValue={variant.name} required/><input className="input" name="sku" aria-label="Variant SKU" defaultValue={variant.sku??''} placeholder="SKU"/><input className="input" name="price" aria-label="Variant price" type="number" min="0" step="0.01" defaultValue={variant.price??''} placeholder="Use product price"/><input className="input" name="stock_quantity" aria-label="Variant stock" type="number" min="0" defaultValue={variant.stock_quantity} required/><textarea className="input" name="attributes" aria-label="Variant attributes JSON" defaultValue={JSON.stringify(variant.attributes??{})}/></ActionForm><ActionForm action={deleteVariantAction} submitLabel="Delete variant" className="mt-3"><input type="hidden" name="id" value={variant.id}/><input type="hidden" name="product_id" value={product.id}/></ActionForm></div>)}</div><div className="card p-5 mt-5"><h3 className="font-semibold mb-4">Add variant</h3><ActionForm action={saveVariantAction} submitLabel="Add variant" className="grid md:grid-cols-3 gap-3"><input type="hidden" name="product_id" value={product.id}/><input className="input" name="name" aria-label="Variant name" placeholder="Variant name" required/><input className="input" name="sku" aria-label="Variant SKU" placeholder="SKU"/><input className="input" name="price" aria-label="Variant price" type="number" min="0" step="0.01" placeholder="Use product price"/><input className="input" name="stock_quantity" aria-label="Variant stock" type="number" min="0" defaultValue="0" required/><textarea className="input" name="attributes" aria-label="Variant attributes JSON" defaultValue="{}"/></ActionForm></div></section>}
+  </>;
+}

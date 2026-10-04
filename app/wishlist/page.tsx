@@ -1,0 +1,1 @@
+'use client'; import Link from 'next/link'; export default function Wishlist(){return <main className="container py-20 text-center"><h1 className="serif text-5xl">Wishlist</h1><p className="mt-5 text-muted-text">Sign in to save your favorite TALENTIA pieces.</p><Link href="/login" className="lux-btn mt-7">SIGN IN</Link></main>}

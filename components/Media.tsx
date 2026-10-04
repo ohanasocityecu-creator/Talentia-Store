@@ -1,0 +1,2 @@
+'use client';
+export function Media({src,alt,className='',priority=false}:{src?:string|null;alt:string;className?:string;priority?:boolean}){if(!src)return null;return <img src={src} alt={alt} className={className} loading={priority?'eager':'lazy'} decoding="async" fetchPriority={priority?'high':'auto'} onError={e=>{if(!e.currentTarget.src.endsWith('/placeholder-product.svg'))e.currentTarget.src='/placeholder-product.svg'}}/>}
