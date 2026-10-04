@@ -3,9 +3,11 @@
 import {useState} from 'react';
 import {ShoppingBag, Heart} from 'lucide-react';
 import Link from 'next/link';
+import {useLanguage} from '@/components/LanguageProvider';
 
 export function AddToCart({product, disabled = false}:{product:any; disabled?:boolean}){
   const [added, setAdded] = useState(false);
+  const {t} = useLanguage();
 
   function add(){
     const cart = JSON.parse(localStorage.getItem('talentia-cart') || '[]');
@@ -23,14 +25,13 @@ export function AddToCart({product, disabled = false}:{product:any; disabled?:bo
   return (
     <div className="flex gap-3 mt-7">
       <button disabled={disabled} onClick={add} className="lux-btn flex-1 disabled:opacity-40" type="button">
-        <ShoppingBag size={18} className="mr-2" />
-        {added ? 'Added to Your Bag' : 'Add to Bag'}
+        <ShoppingBag size={18} className="me-2" />
+        {added ? t('product.addedToBag') : t('product.addToBag')}
       </button>
-      <button className="ghost-btn" type="button" aria-label={`Add ${product.name} to wishlist`}>
+      <button className="ghost-btn" type="button" aria-label={t('product.addWishlist', {name: product.name})}>
         <Heart />
       </button>
-      {added && <Link href="/cart" className="sr-only">Cart</Link>}
+      {added && <Link href="/cart" className="sr-only">{t('nav.cart')}</Link>}
     </div>
   );
 }
-

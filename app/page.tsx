@@ -2,16 +2,19 @@ import Link from 'next/link';
 import {ArrowRight, HeartHandshake, Sparkles, ShieldCheck, Truck} from 'lucide-react';
 import {ProductGrid} from '@/components/ProductGrid';
 import {supabase} from '@/lib/supabase';
+import {getLocale} from '@/lib/locale-server';
+import {localizedCategoryName, localizedField, translate} from '@/lib/i18n';
 
 const reasons = [
-  { title: 'Stainless Steel', description: 'Made for everyday wear.', icon: Sparkles },
-  { title: 'Long Lasting', description: 'Designed to stay beautiful.', icon: ShieldCheck },
-  { title: 'Affordable Luxury', description: 'Premium look without the premium price.', icon: HeartHandshake },
-  { title: 'Easy Ordering', description: 'Simple and convenient shopping experience.', icon: Truck },
+  { title: 'home.reasons.stainlessTitle', description: 'home.reasons.stainlessDescription', icon: Sparkles },
+  { title: 'home.reasons.lastingTitle', description: 'home.reasons.lastingDescription', icon: ShieldCheck },
+  { title: 'home.reasons.luxuryTitle', description: 'home.reasons.luxuryDescription', icon: HeartHandshake },
+  { title: 'home.reasons.orderingTitle', description: 'home.reasons.orderingDescription', icon: Truck },
 ];
 
 export default async function Home({searchParams}:{searchParams:Promise<{access?:string}>}){
-  const {access} = await searchParams;
+  const [{access}, locale] = await Promise.all([searchParams, getLocale()]);
+  const t = (key: string) => translate(locale, key);
   let products:any[] = [];
   let categories:{name:string;slug:string}[] = [];
 
@@ -30,6 +33,7 @@ export default async function Home({searchParams}:{searchParams:Promise<{access?
   }
 
   const heroProduct = products[0];
+  const heroProductName = localizedField(heroProduct, 'name', locale) ?? heroProduct?.name;
   const heroImages = heroProduct?.product_images ?? [];
   const heroImage = [...heroImages].sort((a:any, b:any) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order)[0]?.image_url;
   const galleryImages = products
@@ -42,7 +46,7 @@ export default async function Home({searchParams}:{searchParams:Promise<{access?
     <main className="pb-10">
       {access === 'denied' && (
         <div className="bg-burgundy text-white">
-          <div className="container py-4 text-sm font-medium">Access denied. This account is not allowed to access the admin area.</div>
+          <div className="container py-4 text-sm font-medium">{t('home.accessDenied')}</div>
         </div>
       )}
 
@@ -55,23 +59,23 @@ export default async function Home({searchParams}:{searchParams:Promise<{access?
             <div className="max-w-xl">
               <p className="eyebrow text-burgundy">TALENTIA</p>
               <h1 className="serif mt-6 text-5xl leading-[0.96] tracking-[-0.04em] text-text sm:text-6xl lg:text-[5.2rem]">
-                Made to Shine.
+                {t('home.madeToShine')}
                 <br />
-                Made to Last.
+                {t('home.madeToLast')}
               </h1>
               <p className="mt-6 max-w-md text-lg leading-8 text-muted-text">
-                Premium stainless-steel accessories designed for everyday elegance.
+                {t('home.heroDescription')}
               </p>
 
               <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                <Link href="/shop" className="lux-btn">Shop Now</Link>
-                <Link href="#story" className="ghost-btn">Discover TALENTIA</Link>
+                <Link href="/shop" className="lux-btn">{t('home.shopNow')}</Link>
+                <Link href="#story" className="ghost-btn">{t('home.discover')}</Link>
               </div>
 
               <div className="mt-9 flex flex-wrap gap-6 text-sm text-muted-text">
-                <span className="inline-flex items-center gap-2"><Sparkles size={16} className="text-rose" /> Stainless steel</span>
-                <span className="inline-flex items-center gap-2"><ShieldCheck size={16} className="text-rose" /> Everyday wear</span>
-                <span className="inline-flex items-center gap-2"><Truck size={16} className="text-rose" /> Easy ordering</span>
+                <span className="inline-flex items-center gap-2"><Sparkles size={16} className="text-rose" /> {t('home.stainlessSteel')}</span>
+                <span className="inline-flex items-center gap-2"><ShieldCheck size={16} className="text-rose" /> {t('home.everydayWear')}</span>
+                <span className="inline-flex items-center gap-2"><Truck size={16} className="text-rose" /> {t('home.easyOrdering')}</span>
               </div>
             </div>
 
@@ -80,7 +84,7 @@ export default async function Home({searchParams}:{searchParams:Promise<{access?
                 {heroImage ? (
                   <img
                     src={heroImage}
-                    alt={heroProduct?.name || 'TALENTIA product'}
+                    alt={heroProductName || t('home.productImage')}
                     className="aspect-[4/5] w-full object-cover"
                     loading="eager"
                     decoding="async"
@@ -90,15 +94,15 @@ export default async function Home({searchParams}:{searchParams:Promise<{access?
                   <div className="flex aspect-[4/5] items-center justify-center bg-gradient-to-br from-soft-pink to-cream p-8 text-center">
                     <div>
                       <p className="eyebrow text-burgundy">TALENTIA</p>
-                      <p className="serif mt-4 text-4xl text-text">Made to Shine.</p>
+                      <p className="serif mt-4 text-4xl text-text">{t('home.madeToShine')}</p>
                     </div>
                   </div>
                 )}
               </div>
               {heroProduct && (
-                <div className="absolute -bottom-4 left-4 rounded-full bg-white px-4 py-3 shadow-lg shadow-[rgba(122,66,74,0.12)] ring-1 ring-border">
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-muted-text">Featured</p>
-                  <p className="mt-1 font-semibold text-text">{heroProduct.name}</p>
+                <div className="absolute -bottom-4 start-4 rounded-full bg-white px-4 py-3 shadow-lg shadow-[rgba(122,66,74,0.12)] ring-1 ring-border">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-muted-text">{t('home.featured')}</p>
+                  <p className="mt-1 font-semibold text-text">{heroProductName}</p>
                 </div>
               )}
             </div>
@@ -111,14 +115,14 @@ export default async function Home({searchParams}:{searchParams:Promise<{access?
           <div className="container">
             <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="eyebrow">New Arrivals</p>
-                <h2 className="serif mt-3 text-4xl text-text md:text-5xl">NEW ARRIVALS</h2>
+                <p className="eyebrow">{t('home.newArrivals')}</p>
+                <h2 className="serif mt-3 text-4xl text-text md:text-5xl">{t('home.newArrivals')}</h2>
               </div>
               <Link href="/shop" className="inline-flex items-center gap-2 text-sm font-semibold text-burgundy">
-                View all <ArrowRight size={16} />
+                {t('home.viewAll')} <ArrowRight size={16} className="rtl-flip" />
               </Link>
             </div>
-            <ProductGrid products={products.slice(0, 4)} />
+            <ProductGrid products={products.slice(0, 4)} locale={locale} />
           </div>
         </section>
       )}
@@ -127,16 +131,16 @@ export default async function Home({searchParams}:{searchParams:Promise<{access?
         <section className="bg-soft-pink/70 py-20">
           <div className="container">
             <div className="mb-8">
-              <p className="eyebrow">Collections</p>
-              <h2 className="serif mt-3 text-4xl text-text md:text-5xl">SHOP BY CATEGORY</h2>
+              <p className="eyebrow">{t('home.collections')}</p>
+              <h2 className="serif mt-3 text-4xl text-text md:text-5xl">{t('home.shopByCategory')}</h2>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               {categories.map((category) => (
                 <Link key={category.slug} href={`/category/${category.slug}`} className="card group overflow-hidden">
                   <div className="flex aspect-[4/5] flex-col justify-end bg-gradient-to-br from-[#fff9f7] via-[#fff6f3] to-[#f4dfe1] p-5">
                     <div className="flex items-center justify-between">
-                      <span className="serif text-2xl text-text">{category.name}</span>
-                      <ArrowRight size={18} className="text-burgundy transition group-hover:translate-x-1" />
+                      <span className="serif text-2xl text-text">{localizedCategoryName(category.name, locale)}</span>
+                      <ArrowRight size={18} className="rtl-flip text-burgundy transition group-hover:translate-x-1" />
                     </div>
                   </div>
                 </Link>
@@ -149,8 +153,8 @@ export default async function Home({searchParams}:{searchParams:Promise<{access?
       <section className="section-shell">
         <div className="container">
           <div className="mb-8 text-center">
-            <p className="eyebrow">Why TALENTIA</p>
-            <h2 className="serif mt-3 text-4xl text-text md:text-5xl">WHY TALENTIA?</h2>
+            <p className="eyebrow">{t('home.whyTalentia')}</p>
+            <h2 className="serif mt-3 text-4xl text-text md:text-5xl">{t('home.whyTalentia')}</h2>
           </div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {reasons.map(({title, description, icon: Icon}) => (
@@ -158,8 +162,8 @@ export default async function Home({searchParams}:{searchParams:Promise<{access?
                 <div className="mb-5 inline-flex rounded-full bg-soft-pink p-3 text-burgundy">
                   <Icon size={20} />
                 </div>
-                <h3 className="serif text-2xl text-text">{title}</h3>
-                <p className="mt-3 text-sm leading-7 text-muted-text">{description}</p>
+                <h3 className="serif text-2xl text-text">{t(title)}</h3>
+                <p className="mt-3 text-sm leading-7 text-muted-text">{t(description)}</p>
               </div>
             ))}
           </div>
@@ -170,16 +174,16 @@ export default async function Home({searchParams}:{searchParams:Promise<{access?
         <div className="container">
           <div className="grid gap-8 lg:grid-cols-[0.96fr_1.04fr] lg:items-center">
             <div className="card overflow-hidden border-border">
-              {heroImage ? <img src={heroImage} alt="TALENTIA brand story" className="aspect-[4/5] w-full object-cover" loading="lazy" decoding="async" /> : <div className="flex aspect-[4/5] items-center justify-center bg-gradient-to-br from-soft-pink to-cream text-center"><p className="serif text-4xl text-text">TALENTIA</p></div>}
+              {heroImage ? <img src={heroImage} alt={t('home.storyImage')} className="aspect-[4/5] w-full object-cover" loading="lazy" decoding="async" /> : <div className="flex aspect-[4/5] items-center justify-center bg-gradient-to-br from-soft-pink to-cream text-center"><p className="serif text-4xl text-text">TALENTIA</p></div>}
             </div>
             <div>
-              <p className="eyebrow">The TALENTIA story</p>
-              <h2 className="serif mt-3 text-4xl text-text md:text-5xl">PRETTY, AFFORDABLE ACCESSORIES THAT ACTUALLY LAST.</h2>
+              <p className="eyebrow">{t('home.storyEyebrow')}</p>
+              <h2 className="serif mt-3 text-4xl text-text md:text-5xl">{t('home.storyTitle')}</h2>
               <p className="mt-6 max-w-xl text-lg leading-8 text-muted-text">
-                TALENTIA is about creating pieces that feel personal, effortless, and easy to wear every day. Thoughtful details, everyday versatility, and a premium finish designed to move with your routine.
+                {t('home.storyDescription')}
               </p>
               <p className="mt-6 max-w-xl text-base leading-8 text-muted-text">
-                Discover jewellery and accessories that bring polish to the everyday without losing that soft, feminine feeling.
+                {t('home.storyMore')}
               </p>
             </div>
           </div>
@@ -189,22 +193,22 @@ export default async function Home({searchParams}:{searchParams:Promise<{access?
       <section className="section-shell">
         <div className="container">
           <div className="mb-8">
-            <p className="eyebrow">Community</p>
-            <h2 className="serif mt-3 text-4xl text-text md:text-5xl">FOLLOW @talentia.store</h2>
+            <p className="eyebrow">{t('home.community')}</p>
+            <h2 className="serif mt-3 text-4xl text-text md:text-5xl">{t('home.follow')}</h2>
           </div>
 
           {galleryImages.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {galleryImages.map((image, index) => (
                 <div key={`${image}-${index}`} className="card overflow-hidden">
-                  <img src={image} alt="TALENTIA collection detail" className="aspect-[4/5] w-full object-cover" loading="lazy" decoding="async" />
+                  <img src={image} alt={t('home.collectionImage')} className="aspect-[4/5] w-full object-cover" loading="lazy" decoding="async" />
                 </div>
               ))}
             </div>
           ) : (
             <div className="card p-8 text-center">
-              <p className="serif text-3xl text-text">Your TALENTIA moments are on their way.</p>
-              <p className="mt-3 text-muted-text">New media will appear here as the collection grows.</p>
+              <p className="serif text-3xl text-text">{t('home.moments')}</p>
+              <p className="mt-3 text-muted-text">{t('home.galleryComing')}</p>
             </div>
           )}
         </div>
@@ -215,14 +219,14 @@ export default async function Home({searchParams}:{searchParams:Promise<{access?
           <div className="card bg-soft-pink/80 p-7 md:p-10">
             <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
               <div>
-                <p className="eyebrow text-burgundy">Newsletter</p>
-                <h2 className="serif mt-3 text-4xl text-text md:text-5xl">JOIN THE TALENTIA COMMUNITY</h2>
-                <p className="mt-4 max-w-xl text-muted-text">Receive updates on new arrivals, styling ideas and upcoming drops.</p>
+                <p className="eyebrow text-burgundy">{t('home.newsletter')}</p>
+                <h2 className="serif mt-3 text-4xl text-text md:text-5xl">{t('home.joinCommunity')}</h2>
+                <p className="mt-4 max-w-xl text-muted-text">{t('home.newsletterDescription')}</p>
               </div>
               <div className="flex w-full max-w-xl gap-3">
-                <label htmlFor="newsletter-email" className="sr-only">Email address</label>
-                <input id="newsletter-email" className="input border-border bg-white" type="email" placeholder="Email address" aria-label="Email address" />
-                <button type="button" className="lux-btn !min-w-[140px]">Join</button>
+                <label htmlFor="newsletter-email" className="sr-only">{t('home.email')}</label>
+                <input id="newsletter-email" className="input border-border bg-white" type="email" placeholder={t('home.email')} aria-label={t('home.email')} />
+                <button type="button" className="lux-btn !min-w-[140px]">{t('home.join')}</button>
               </div>
             </div>
           </div>

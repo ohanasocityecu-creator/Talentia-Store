@@ -1,14 +1,16 @@
 'use client';
 import Link from 'next/link';
+import {useLanguage} from '@/components/LanguageProvider';
 
 export default function Wishlist(){
+  const {t} = useLanguage();
   return (
     <main className="container py-20">
       <div className="card p-10 text-center">
-        <p className="eyebrow">Wishlist</p>
-        <h1 className="serif mt-3 text-5xl text-text">Your Wishlist Is Empty</h1>
-        <p className="mt-4 text-muted-text">Save your favorite pieces here.</p>
-        <Link href="/shop" className="lux-btn mt-7">Shop Now</Link>
+        <p className="eyebrow">{t('account.wishlist')}</p>
+        <h1 className="serif mt-3 text-5xl text-text">{t('wishlist.title')}</h1>
+        <p className="mt-4 text-muted-text">{t('wishlist.description')}</p>
+        <Link href="/shop" className="lux-btn mt-7">{t('wishlist.shopNow')}</Link>
       </div>
     </main>
   );

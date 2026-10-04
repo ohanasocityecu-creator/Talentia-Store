@@ -27,8 +27,15 @@ This project intentionally does **not** use `next/image` or Vercel Image Optimiz
 - Add real products, categories, pricing rules, shipping zones, and CMS content through Supabase; product images should use Supabase Storage URLs.
 - Configure domain, social URLs, legal pages, transactional email, monitoring, and payment provider before public launch.
 
+## Storefront languages
+- English is the default language; Arabic is available at `/ar` and English at `/en`.
+- The locale proxy rewrites localized URLs onto the existing App Router pages and redirects legacy unprefixed URLs to the selected locale.
+- Locale choice is stored in the `talentia-locale` cookie so server-rendered HTML, `lang`, and text direction agree on first render.
+- UI messages are centralized in `messages/en.json` and `messages/ar.json`. Existing product and category records are not modified; optional localized product fields are used when present and otherwise fall back to their current English content.
+- No Supabase schema changes or migrations are required for localization.
+
 ## Route map
-Store: `/`, `/shop`, `/category/[slug]`, `/product/[slug]`, `/cart`, `/wishlist`, `/checkout`, `/track-order`, `/account`
+Store: `/en` or `/ar`, then `shop`, `category/[slug]`, `product/[slug]`, `cart`, `wishlist`, `checkout`, `track-order`, `account`
 Admin: `/admin`, `/admin/products`, `/admin/categories`, `/admin/orders`, `/admin/customers`, `/admin/pricing`, `/admin/shipping`, `/admin/content`
 
 ## Image audit

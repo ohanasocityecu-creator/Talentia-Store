@@ -1,26 +1,58 @@
 import './globals.css';
 import {Header} from '@/components/Header';
 import {Footer} from '@/components/Footer';
+import {LanguageProvider} from '@/components/LanguageProvider';
+import {getLocale} from '@/lib/locale-server';
+import {headers} from 'next/headers';
+import {localePath, translate, type Locale} from '@/lib/i18n';
 
-export const metadata = {
-  metadataBase: new URL('https://talentia-store-five.vercel.app'),
-  title: 'TALENTIA | Stainless Steel Accessories in Egypt',
-  description: 'Discover TALENTIA\'s collection of elegant stainless-steel accessories designed for everyday wear. Shop necklaces, bracelets, rings and more in Egypt.',
-  alternates: { canonical: '/' },
-  openGraph: {
-    title: 'TALENTIA | Stainless Steel Accessories in Egypt',
-    description: 'Premium stainless-steel accessories designed for everyday elegance.',
-    siteName: 'TALENTIA',
-    type: 'website',
-    url: 'https://talentia-store-five.vercel.app',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'TALENTIA | Stainless Steel Accessories in Egypt',
-    description: 'Premium stainless-steel accessories designed for everyday elegance.',
-  },
-};
+const siteUrl = 'https://talentia-store-five.vercel.app';
 
-export default function RootLayout({children}:{children:React.ReactNode}){
-  return <html lang="en"><body><Header/>{children}<Footer/></body></html>;
+export async function generateMetadata() {
+  const [locale, requestHeaders] = await Promise.all([getLocale(), headers()]);
+  const pathname = requestHeaders.get('x-talentia-pathname') || '/';
+  const title = translate(locale, 'seo.title');
+  const description = translate(locale, 'seo.description');
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title,
+    description,
+    alternates: {
+      canonical: localePath(pathname, locale),
+      languages: {
+        en: localePath(pathname, 'en'),
+        ar: localePath(pathname, 'ar'),
+        'x-default': localePath(pathname, 'en'),
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      siteName: 'TALENTIA',
+      type: 'website',
+      url: `${siteUrl}${localePath(pathname, locale)}`,
+      locale: locale === 'ar' ? 'ar_EG' : 'en_EG',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  };
+}
+
+export default async function RootLayout({children}:{children:React.ReactNode}){
+  const locale: Locale = await getLocale();
+  return (
+    <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+      <body>
+        <LanguageProvider locale={locale}>
+          <Header />
+          {children}
+          <Footer />
+        </LanguageProvider>
+      </body>
+    </html>
+  );
 }

@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import {ProductCard} from './ProductCard';
+import {translate, type Locale} from '@/lib/i18n';
 
-export function ProductGrid({products=[]}:{products?:any[]}){
+export function ProductGrid({products=[], locale='en'}:{products?:any[]; locale?:Locale}){
   if (!products.length) {
     return (
       <div className="card p-10 text-center">
-        <p className="serif text-3xl text-text">No pieces available right now.</p>
-        <p className="mt-3 text-muted-text">New arrivals are on the way.</p>
-        <Link href="/shop" className="ghost-btn mt-6">Continue Browsing</Link>
+        <p className="serif text-3xl text-text">{translate(locale, 'shop.noProducts')}</p>
+        <p className="mt-3 text-muted-text">{translate(locale, 'shop.newOnWay')}</p>
+        <Link href="/shop" className="ghost-btn mt-6">{translate(locale, 'shop.continueBrowsing')}</Link>
       </div>
     );
   }

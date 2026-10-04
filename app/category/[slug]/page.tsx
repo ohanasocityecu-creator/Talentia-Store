@@ -1,10 +1,12 @@
 import {ProductGrid} from '@/components/ProductGrid';
 import {supabase} from '@/lib/supabase';
 import {notFound} from 'next/navigation';
+import {getLocale} from '@/lib/locale-server';
+import {localizedCategoryName, translate} from '@/lib/i18n';
 
 export default async function Category({params}:{params:Promise<{slug:string}>}){
-  const {slug} = await params;
-  if (!supabase) return <main className="container py-14"><p className="text-muted-text">Collections are coming soon.</p></main>;
+  const [{slug}, locale] = await Promise.all([params, getLocale()]);
+  if (!supabase) return <main className="container py-14"><p className="text-muted-text">{translate(locale, 'shop.comingSoon')}</p></main>;
 
   let products:any[] = [];
   let categoryName = slug;
@@ -16,15 +18,15 @@ export default async function Category({params}:{params:Promise<{slug:string}>})
 
   if (!categoryResult.data) notFound();
 
-  categoryName = categoryResult.data.name;
+  categoryName = localizedCategoryName(categoryResult.data.name, locale);
   products = productResult.data ?? [];
 
   return (
     <main className="container py-14">
-      <p className="eyebrow">Collection</p>
+      <p className="eyebrow">{translate(locale, 'shop.collection')}</p>
       <h1 className="serif mt-3 text-5xl text-text md:text-6xl">{categoryName}</h1>
       <div className="mt-10">
-        <ProductGrid products={products} />
+        <ProductGrid products={products} locale={locale} />
       </div>
     </main>
   );
