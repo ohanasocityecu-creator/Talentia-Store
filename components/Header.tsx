@@ -30,11 +30,13 @@ export function Header(){
   const [menuOpen, setMenuOpen] = useState(false);
   const [collectionsOpen, setCollectionsOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [storyActive, setStoryActive] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [categories, setCategories] = useState<CategoryLink[]>([]);
   const [cartCount, setCartCount] = useState(0);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [accountMessage, setAccountMessage] = useState('');
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState<SearchProduct[]>([]);
   const [searchMessage, setSearchMessage] = useState('');
@@ -47,6 +49,13 @@ export function Header(){
   const searchButtonRef = useRef<HTMLButtonElement>(null);
   const accountPanelRef = useRef<HTMLDivElement>(null);
   const accountButtonRef = useRef<HTMLButtonElement>(null);
+  const collectionsPanelRef = useRef<HTMLDivElement>(null);
+  const searchResultsRef = useRef<SearchProduct[]>([]);
+  const highlightedResultRef = useRef(-1);
+  const localeRef = useRef(locale);
+  searchResultsRef.current = searchResults;
+  highlightedResultRef.current = highlightedResult;
+  localeRef.current = locale;
 
   const closeMobileMenu = useCallback(() => setMenuOpen(false), []);
   const openSearch = useCallback(() => {
@@ -105,8 +114,10 @@ export function Header(){
     void supabase.auth.getSession().then(({data, error}) => {
       if (error) {
         console.error('Could not read the current Supabase session for the account menu.', error);
+        setAccountMessage(t('nav.sessionError'));
         return;
       }
+      setAccountMessage('');
       setUserEmail(data.session?.user.email ?? null);
     });
     const {data: authListener} = supabase.auth.onAuthStateChange((_event, session) => {
@@ -120,6 +131,13 @@ export function Header(){
     updateScrollState();
     window.addEventListener('scroll', updateScrollState, {passive: true});
     return () => window.removeEventListener('scroll', updateScrollState);
+  }, []);
+
+  useEffect(() => {
+    const updateStoryState = () => setStoryActive(window.location.hash === '#story');
+    updateStoryState();
+    window.addEventListener('hashchange', updateStoryState);
+    return () => window.removeEventListener('hashchange', updateStoryState);
   }, []);
 
   useEffect(() => {
@@ -159,25 +177,46 @@ export function Header(){
 
   useEffect(() => {
     if (!searchOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     searchInputRef.current?.focus();
+    const returnFocus = searchButtonRef.current?.offsetParent
+      ? searchButtonRef.current
+      : menuButtonRef.current;
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === 'Escape') {
         setSearchOpen(false);
-        searchButtonRef.current?.focus();
-      } else if (event.key === 'ArrowDown' && searchResults.length) {
+        returnFocus?.focus();
+      } else if (event.key === 'ArrowDown' && searchResultsRef.current.length) {
         event.preventDefault();
-        setHighlightedResult((current) => (current + 1) % searchResults.length);
-      } else if (event.key === 'ArrowUp' && searchResults.length) {
+        setHighlightedResult((current) => (current + 1) % searchResultsRef.current.length);
+      } else if (event.key === 'ArrowUp' && searchResultsRef.current.length) {
         event.preventDefault();
-        setHighlightedResult((current) => (current <= 0 ? searchResults.length - 1 : current - 1));
-      } else if (event.key === 'Enter' && highlightedResult >= 0 && searchResults[highlightedResult]) {
+        setHighlightedResult((current) => (current <= 0 ? searchResultsRef.current.length - 1 : current - 1));
+      } else if (event.key === 'Enter' && highlightedResultRef.current >= 0 && searchResultsRef.current[highlightedResultRef.current]) {
         event.preventDefault();
-        window.location.assign(localePath(`/product/${searchResults[highlightedResult].slug}`, locale));
+        window.location.assign(localePath(`/product/${searchResultsRef.current[highlightedResultRef.current].slug}`, localeRef.current));
+      } else if (event.key === 'Tab' && searchPanelRef.current) {
+        const focusable = [...searchPanelRef.current.querySelectorAll<HTMLElement>('input, button, a[href]')]
+          .filter((element) => !element.hasAttribute('disabled'));
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
       }
     };
     document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [searchOpen, searchResults, highlightedResult, locale]);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+      returnFocus?.focus();
+    };
+  }, [searchOpen]);
 
   useEffect(() => {
     if (!accountOpen) return;
@@ -204,8 +243,17 @@ export function Header(){
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === 'Escape') setCollectionsOpen(false);
     };
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !collectionsPanelRef.current?.contains(event.target)) {
+        setCollectionsOpen(false);
+      }
+    };
     document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('pointerdown', onPointerDown);
+    };
   }, [collectionsOpen]);
 
   async function submitSearch(event: FormEvent<HTMLFormElement>) {
@@ -261,13 +309,15 @@ export function Header(){
     const {error} = await supabase.auth.signOut();
     if (error) {
       console.error('Could not sign out of the storefront account.', error);
+      setAccountMessage(t('nav.signOutError'));
       return;
     }
+    setAccountMessage('');
     setAccountOpen(false);
   }
 
   const isShopActive = pathname.endsWith('/shop') || pathname.includes('/category/');
-  const isAboutActive = pathname.includes('#story');
+  const isAboutActive = storyActive;
   const collectionsDropdown = categories.length > 1;
   const collectionLabel = t('nav.collections');
 
@@ -307,7 +357,7 @@ export function Header(){
             </Link>
 
             {collectionsDropdown ? (
-              <div className="relative">
+              <div ref={collectionsPanelRef} className="relative">
                 <button
                   type="button"
                   className="header-nav-link inline-flex items-center gap-1.5"
@@ -393,6 +443,7 @@ export function Header(){
               </button>
               {accountOpen && (
                 <div ref={accountPanelRef} className="header-dropdown header-account-menu" aria-label={t('nav.accountMenu')}>
+                  {accountMessage && <p role="alert" className="mb-2 text-xs text-burgundy">{accountMessage}</p>}
                   {userEmail ? (
                     <>
                       <p className="header-dropdown-eyebrow truncate">{userEmail}</p>
@@ -403,6 +454,7 @@ export function Header(){
                     </>
                   ) : (
                     <>
+                      <Link href="/account" onClick={() => setAccountOpen(false)} className="header-dropdown-link">{t('nav.myAccount')}</Link>
                       <Link href="/login" onClick={() => setAccountOpen(false)} className="header-dropdown-link">{t('nav.login')}</Link>
                       <Link href="/signup" onClick={() => setAccountOpen(false)} className="header-dropdown-link">{t('nav.createAccount')}</Link>
                     </>

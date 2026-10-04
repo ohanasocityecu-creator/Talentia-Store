@@ -38,6 +38,8 @@
     "keyboardNavigate": "to navigate",
     "keyboardSelect": "to select",
     "keyboardClose": "to close",
+    "sessionError": "Your account menu could not be loaded. Please refresh and try again.",
+    "signOutError": "Could not sign out. Please try again.",
     "menuOpen": "Open menu",
     "menuClose": "Close menu"
   },

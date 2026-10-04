@@ -38,6 +38,8 @@
     "keyboardNavigate": "للتنقل",
     "keyboardSelect": "للاختيار",
     "keyboardClose": "للإغلاق",
+    "sessionError": "تعذّر تحميل قائمة حسابك. حدّثي الصفحة وحاولي مجددًا.",
+    "signOutError": "تعذّر تسجيل الخروج. حاولي مرة أخرى.",
     "menuOpen": "افتحي القائمة",
     "menuClose": "أغلقي القائمة"
   },

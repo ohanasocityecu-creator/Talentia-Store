@@ -87,6 +87,10 @@ html[dir='rtl'] h3 { letter-spacing: 0; }
   font-weight: 500;
   transition: color .18s ease, opacity .18s ease;
 }
+.header-icon-button.hidden { display: none; }
+@media (min-width: 640px) {
+  .header-icon-button.hidden { display: inline-flex; }
+}
 .header-icon-button:hover { color: var(--color-deep-rose); }
 .header-icon-button:focus-visible,
 .header-language:focus-visible,
@@ -109,6 +113,10 @@ html[dir='rtl'] h3 { letter-spacing: 0; }
   font-weight: 700;
   letter-spacing: 0.12em;
   transition: color .18s ease, background-color .18s ease;
+}
+.header-language.hidden { display: none; }
+@media (min-width: 768px) {
+  .header-language.hidden { display: inline-flex; }
 }
 .header-language:hover,
 .header-language.is-selected { color: var(--color-deep-rose); }
